@@ -37,7 +37,15 @@ $123.45
 ## Quick setup
 
 1. Download `oneocr.exe` from the [oneocr-cli project](https://github.com/deltqz/oneocr-cli) and place it next to `Install.ps1`.
-2. Run PowerShell and execute:
+2. Open PowerShell in the downloaded folder. If PowerShell says scripts are disabled, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+```
+
+This bypass applies only to the current PowerShell session and does not permanently change your execution policy.
+
+Then run the installer:
 
 ```powershell
 .\Install.ps1
