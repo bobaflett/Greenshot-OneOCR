@@ -1,0 +1,14 @@
+# Microsoft OneOCR / Snipping Tool components - never redistribute
+oneocr.dll
+oneocr.onemodel
+onnxruntime.dll
+
+# Third-party compiled wrapper - obtain from deltqz/oneocr-cli
+oneocr.exe
+
+# Local/test output
+*.txt
+*.png
+*.jpg
+*.jpeg
+*.log
