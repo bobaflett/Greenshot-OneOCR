@@ -30,13 +30,13 @@ $123.45
 - Windows 11 with a recent version of Snipping Tool
 - Greenshot with the External Command plugin
 - PowerShell 5.1 or later
-- [deltqz/oneocr-cli](https://github.com/deltqz/oneocr-cli)
+- Internet access during installation (to download [deltqz/oneocr-cli](https://github.com/deltqz/oneocr-cli))
 
-> **Important:** This project does not include or redistribute Microsoft's OneOCR DLL or model files. `Install.ps1` copies them from your own installed copy of Snipping Tool.
+> **Important:** This project does not include or redistribute Microsoft's OneOCR DLL or model files. `Install.ps1` copies them from your own installed copy of Snipping Tool. The installer downloads `oneocr.exe` directly from the upstream `deltqz/oneocr-cli` GitHub release rather than redistributing it.
 
 ## Quick setup
 
-1. Download `oneocr.exe` from the [oneocr-cli project](https://github.com/deltqz/oneocr-cli) and place it next to `Install.ps1`.
+1. Download or clone this repository.
 2. Open PowerShell in the downloaded folder. If PowerShell says scripts are disabled, run:
 
 ```powershell
@@ -50,6 +50,8 @@ Then run the installer:
 ```powershell
 .\Install.ps1
 ```
+
+The installer automatically downloads the latest Windows x64 release of `oneocr-cli`, copies the OneOCR components from your locally installed Windows Snipping Tool, and installs everything to `C:\Tools\OneOCR` by default.
 
 3. In Greenshot, add an External Command destination using the settings printed by the installer.
 4. Capture a region, choose **OneOCR -> Clipboard**, wait a moment, then paste.
