@@ -9,12 +9,7 @@ Write-Host "Greenshot-OneOCR installer"
 Write-Host "--------------------------"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$OneOCRExe = Join-Path $ScriptDir "oneocr.exe"
 $Wrapper   = Join-Path $ScriptDir "GreenshotOCR.ps1"
-
-if (-not (Test-Path -LiteralPath $OneOCRExe)) {
-    throw "oneocr.exe was not found next to Install.ps1. Download it from https://github.com/deltqz/oneocr-cli and place it in this folder, then run the installer again."
-}
 
 if (-not (Test-Path -LiteralPath $Wrapper)) {
     throw "GreenshotOCR.ps1 was not found next to Install.ps1."
@@ -46,15 +41,50 @@ foreach ($File in $RequiredFiles) {
 Write-Host "Snipping Tool version: $($Snip.Version)"
 Write-Host "Source: $Source"
 Write-Host "Installing to: $InstallPath"
+Write-Host ""
+Write-Host "Downloading latest oneocr-cli release..."
 
-New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+$ReleaseApi = "https://api.github.com/repos/deltqz/oneocr-cli/releases/latest"
+$TempDir = Join-Path $env:TEMP ("Greenshot-OneOCR-" + [guid]::NewGuid().ToString("N"))
+$ZipPath = Join-Path $TempDir "oneocr-cli.zip"
+$ExtractPath = Join-Path $TempDir "oneocr-cli"
 
-foreach ($File in $RequiredFiles) {
-    Copy-Item -LiteralPath (Join-Path $Source $File) -Destination $InstallPath -Force
+try {
+    New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
+
+    $Release = Invoke-RestMethod -Uri $ReleaseApi -Headers @{ "User-Agent" = "Greenshot-OneOCR-Installer" }
+    $Asset = $Release.assets |
+        Where-Object { $_.name -eq "oneocr-cli-windows-x64.zip" } |
+        Select-Object -First 1
+
+    if (-not $Asset) {
+        throw "Could not find oneocr-cli-windows-x64.zip in the latest oneocr-cli release."
+    }
+
+    Write-Host "oneocr-cli release: $($Release.tag_name)"
+    Invoke-WebRequest -Uri $Asset.browser_download_url -OutFile $ZipPath -UseBasicParsing
+
+    Expand-Archive -LiteralPath $ZipPath -DestinationPath $ExtractPath -Force
+
+    $DownloadedExe = Get-ChildItem -Path $ExtractPath -Filter "oneocr.exe" -File -Recurse |
+        Select-Object -First 1
+
+    if (-not $DownloadedExe) {
+        throw "oneocr.exe was not found in the downloaded oneocr-cli archive."
+    }
+
+    New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+
+    foreach ($File in $RequiredFiles) {
+        Copy-Item -LiteralPath (Join-Path $Source $File) -Destination $InstallPath -Force
+    }
+
+    Copy-Item -LiteralPath $DownloadedExe.FullName -Destination (Join-Path $InstallPath "oneocr.exe") -Force
+    Copy-Item -LiteralPath $Wrapper -Destination $InstallPath -Force
 }
-
-Copy-Item -LiteralPath $OneOCRExe -Destination $InstallPath -Force
-Copy-Item -LiteralPath $Wrapper   -Destination $InstallPath -Force
+finally {
+    Remove-Item -LiteralPath $TempDir -Recurse -Force -ErrorAction SilentlyContinue
+}
 
 $InstalledWrapper = Join-Path $InstallPath "GreenshotOCR.ps1"
 
