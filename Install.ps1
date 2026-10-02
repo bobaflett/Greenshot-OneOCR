@@ -64,7 +64,18 @@ try {
     Write-Host "oneocr-cli release: $($Release.tag_name)"
     Invoke-WebRequest -Uri $Asset.browser_download_url -OutFile $ZipPath -UseBasicParsing
 
-    Expand-Archive -LiteralPath $ZipPath -DestinationPath $ExtractPath -Force
+    New-Item -ItemType Directory -Path $ExtractPath -Force | Out-Null
+
+    $TarExe = Join-Path $env:SystemRoot "System32\tar.exe"
+    if (-not (Test-Path -LiteralPath $TarExe)) {
+        throw "Windows tar.exe was not found at $TarExe."
+    }
+
+    & $TarExe -xf $ZipPath -C $ExtractPath
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to extract the oneocr-cli archive. tar.exe exit code: $LASTEXITCODE"
+    }
 
     $DownloadedExe = Get-ChildItem -Path $ExtractPath -Filter "oneocr.exe" -File -Recurse |
         Select-Object -First 1
