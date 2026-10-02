@@ -16,8 +16,13 @@ Example test data:
 21Q1S29X00
 FZG2-1
 12TD001UUS
-UCSX-210C-M7
-21R4SOLJ00
+Plain text
+"Quotes"
+A&B
+C:\Program Files\Test
+hello@example.com
+$123.45
+(TEST)
 ```
 
 ## Requirements
